@@ -1,11 +1,16 @@
+import time
+
+
 class grocery_shop:
     grocery_items = {
-        "bread": ["bread", 40, 21, False],
-        "meat": ["meat", 40, 34, False],
-        "pasta": ["pasta", 40, 9, False],
+        "bread": ["bread", 21, 40, False],
+        "meat": ["meat", 21, 40, False],
+        "pasta": ["pasta", 21, 40, False],
     }
 
-    def __init__(self, attempt=3):
+    def __init__(self, attempt=3, money=0, amount=0):
+        self.amount = amount
+        self.money = money
         self.attempt = attempt
 
     def Login(self):
@@ -64,28 +69,31 @@ class grocery_shop:
                         break
 
             elif qus == "3":
-                remove_product = input("Enter the product nmae you want to delete: ")
+                remove_product = input("Enter the product name you want to delete: ")
                 for key, value in list(self.grocery_items.items()):
                     if key == remove_product:
                         print(f"product {remove_product} removed succeeded")
                         del self.grocery_items[key]
                         g.Admin()
-                print("The id do not found!")
+                print("The item do not found!")
 
             elif qus == "4":
                 my_ava = 0
                 for key in self.grocery_items:
-                    my_ava += int(self.grocery_items[key][1])
+                    my_ava += int(self.grocery_items[key][2])
+                print(my_ava)
 
             elif qus == "5":
                 my_availibale = 0
                 for key in self.grocery_items:
                     my_availibale += int(self.grocery_items[key][1] * int(self.grocery_items[key][2]))
+                print(my_availibale)
 
             elif qus == "6":
                 print("Logout successfully!")
                 g.Login()
-
+            elif qus == "99":
+                g.money_()
             else:
                 print("Invalid input!")
                 continue
@@ -108,15 +116,21 @@ class grocery_shop:
                         print(f"You choose not available item")
                         break
                     else:
-
-                        if qus == self.grocery_items[key][0]:
-                            print("You successfully placed the order!")
-                            self.grocery_items[key][2] -= 1
-                            self.grocery_items[key][3] = True
+                        if self.grocery_items[key][3]:
+                            print("You can't buy it twice!")
                             g.User()
                         else:
-                            print("Invalid input try again!")
-                            g.User()
+                            if qus == self.grocery_items[key][0] and self.money >= self.grocery_items[key][1]:
+                                print("You successfully placed the order!")
+                                self.grocery_items[key][2] -= 1
+                                self.grocery_items[key][3] = True
+                                g.User()
+                            elif qus == self.grocery_items[key][0] and self.money < self.grocery_items[key][1]:
+                                print("You dont have enough money!")
+                                g.User()
+                            else:
+                                print("Invalid input try again!")
+                                g.User()
 
             elif qus == "3":
                 qus = input("Enter the product that you want to cancel is order: ")
@@ -127,17 +141,33 @@ class grocery_shop:
                     break
                 else:
                     if qus == self.grocery_items[key][0]:
-                        if self.grocery_items[key][3] == True:
+                        if self.grocery_items[key][3]:
+                            self.money = self.money + self.grocery_items[key][1]
                             print("You cancel the order!")
-                            self.grocery_items[key][2] -= 1
+                            self.grocery_items[key][2] += 1
                             self.grocery_items[key][3] = False
                             g.User()
 
                         else:
                             print("You dont order it!")
                             g.User()
-
             elif qus == "4":
+                print(f"You money amount now is: {self.money}")
+                time.sleep(2)
+            elif qus == "5":
+                my_string = " "
+                for key in self.grocery_items:
+                    if self.grocery_items[key][3]:
+                        my_string += f" {self.grocery_items[key][0]},"
+
+                if my_string == " ":
+                    print("You dont have any item yet!")
+                else:
+                    print(f"Ok what you have now is{my_string}")
+                input("press enter to go back: ")
+                g.User()
+
+            elif qus == "6":
                 print("You Logout!")
                 g.Login()
 
@@ -153,6 +183,7 @@ class grocery_shop:
         print("4. All Product available")
         print("5. Total Income")
         print("6. Logout")
+        print("99. You money amount")
         print("====================")
 
     def user_text(self):
@@ -160,8 +191,22 @@ class grocery_shop:
         print("1. Display Menu")
         print("2. Place order")
         print("3. Cancel order")
-        print("4. Logout")
+        print("4. See You money amount")
+        print("5. See what you order")
+        print("6. Logout")
         print("===================")
+
+    def money_(self):
+        while True:
+            print(f"You correctly money is: {self.money}")
+            self.money = input("Enter how much money you want: ")
+            if self.money.isdigit():
+                self.money = int(self.money)
+                break
+            else:
+                print("Pls enter a number next time!")
+                self.money = 0
+                continue
 
 
 g = grocery_shop()
